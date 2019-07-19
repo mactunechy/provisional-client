@@ -1,0 +1,17 @@
+
+
+#search-form {
+    border : 0 0 2px 0 solid #383838 ;
+}
+
+
+.notes-card:hover {
+    border : 1px solid #383838 !important;
+    cursor: pointer;
+}
+.notes-card:active {
+    border : 1px solid #007bff !important;
+    background-color : #007bff41;
+    cursor: pointer;
+    color: #007bff;
+}

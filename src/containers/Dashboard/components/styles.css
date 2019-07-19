@@ -1,0 +1,4 @@
+.dash-card:hover{
+    border : solid rgb(44, 188, 255)  1.5px;
+    cursor: pointer;
+}
