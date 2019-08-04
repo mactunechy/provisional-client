@@ -1,15 +1,19 @@
 import React, {Component} from 'react';
 import {Col, Container, Row} from 'reactstrap';
 import Card from './components/Card';
-import SearchForm from './components/SearchForm';
 import NotesList from './components/NotesList';
 import NotesDetails from './components/NotesDetails';
 import PropTypes from 'prop-types';
-
+import NotesService from '../../services/Notes';
+import TopicsService from '../../services/Topics';
 //Redux
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
 import {getCurrentNotes, getNotesList} from '../../redux/actions/notes';
+import {getTopics} from '../../redux/actions/topics';
+
+const notesService = new NotesService ();
+const topicService = new TopicsService ();
 
 class Notes extends Component {
   constructor (props) {
@@ -23,6 +27,23 @@ class Notes extends Component {
     currentNotes: PropTypes.object,
     topics: PropTypes.arrayOf (PropTypes.object).isRequired,
   };
+  componentDidMount () {
+    this.fetchNotes ();
+    this.fetchTopics ();
+  }
+  fetchNotes = () => {
+    const {getNotesList} = this.props;
+    return notesService
+      .fetchAll ()
+      .then (res => {
+        console.log ('res', res);
+        getNotesList (res.content);
+        return res.content;
+      })
+      .catch (err => {
+        console.log ('err', err);
+      });
+  };
   getTopic = topic => {
     const {notesList, getNotesList} = this.props;
     const newNotesList = notesList.filter (
@@ -33,6 +54,18 @@ class Notes extends Component {
   };
   resetNotes = () => {
     //const {get} = objectToDestruct
+  };
+  fetchTopics = () => {
+    const {getTopics} = this.props;
+    topicService
+      .fetchAll ()
+      .then (res => {
+        console.log ('res', res);
+        getTopics (res.content);
+      })
+      .catch (err => {
+        console.log ('err', err);
+      });
   };
 
   render () {
@@ -53,16 +86,16 @@ class Notes extends Component {
             <Card header="Topics">
               <ul className="list-group list-unstyled">
                 {topics &&
-                  topics.map ((topic, idx) => (
-                    <li key={idx} className="nav-link">
-                      <span
-                        onClick={() => this.getTopic (topic)}
-                        className="text-primary"
-                      >
-                        {' '}{topic.label}
-                      </span>
+                  topics.length > 0 &&
+                  topics.map (topic => (
+                    <li
+                      key={topic._id}
+                      onClick={() => this.getTopic (topic)}
+                      className="text-primary nav-link custom-nav-link"
+                    >
+                      {topic.label}
                       <span className="float-right text-dark">
-                        {topic.numberOfNotes}+
+                        {topic.questions.length}+
                       </span>
 
                     </li>
@@ -74,7 +107,15 @@ class Notes extends Component {
           <Col md={8}>
             {currentNotes
               ? <NotesDetails />
-              : <Card className="card-shadow" header={<SearchForm />}>
+              : <Card
+                  className="card-shadow"
+                  header={
+                    <h3>
+                      Notes Archive <b />
+                      <hr className="mt-2 mb-3" />
+                    </h3>
+                  }
+                >
                   {currentTopic &&
                     <p className="mb-4">
                       showing notes of <em>"{currentTopic.label}"</em>
@@ -92,7 +133,7 @@ const mapStateToProps = state => {
   return {
     notesList: state.notes.notesList,
     currentNotes: state.notes.currentNotes,
-    topics: state.notes.topics,
+    topics: state.topics.topics,
   };
 };
 
@@ -100,6 +141,7 @@ const mapDispatchToprops = dispatch =>
   bindActionCreators (
     {
       getCurrentNotes,
+      getTopics,
       getNotesList,
     },
     dispatch

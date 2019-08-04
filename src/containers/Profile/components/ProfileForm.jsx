@@ -1,69 +1,76 @@
 import React, {PureComponent} from 'react';
-import {Field, reduxForm} from 'redux-form';
-import EyeIcon from 'mdi-react/EyeIcon';
-import KeyVariantIcon from 'mdi-react/KeyVariantIcon';
-import AccountOutlineIcon from 'mdi-react/AccountOutlineIcon';
-import {Link} from 'react-router-dom';
 import PropTypes from 'prop-types';
-import renderCheckBoxField from '../../../shared/components/form/CheckBox';
 
-class LogInForm extends PureComponent {
+class ProfileForm extends PureComponent {
   static propTypes = {
-    handleSubmit: PropTypes.func.isRequired,
+    user: PropTypes.object.isRequired,
   };
 
   constructor () {
     super ();
     this.state = {
-      showPassword: false,
+      firstName: '',
+      lastName: '',
+      email: '',
     };
   }
-
-  showPassword = e => {
-    e.preventDefault ();
-    this.setState (prevState => ({showPassword: !prevState.showPassword}));
-  };
+  componentDidMount () {
+    const {user} = this.props;
+    this.setState ({...user});
+  }
+  handleSubmit = e => {};
 
   render () {
-    const {handleSubmit} = this.props;
-    const {showPassword} = this.state;
+    const {firstName, lastName, email} = this.state;
 
     return (
-      <form className="form" onSubmit={handleSubmit}>
+      <form className="form" onSubmit={this.handleSubmit}>
         <div className="form__form-group">
-          <span className="form__form-group-label">Username</span>
+          <span className="form__form-group-label">First Name</span>
           <div className="form__form-group-field">
-            <Field
-              name="name"
+            <input
+              name="firstName"
               component="input"
+              value={firstName}
               type="text"
-              placeholder="Name"
+              placeholder="......"
             />
           </div>
         </div>
         <div className="form__form-group">
-          <span className="form__form-group-label">Password</span>
+          <span className="form__form-group-label">Last Name</span>
           <div className="form__form-group-field">
-            <Field
-              name="password"
+            <input
+              name="lastName"
               component="input"
-              type={showPassword ? 'text' : 'password'}
-              placeholder="Password"
+              type="text"
+              value={lastName}
+              placeholder="....."
+            />
+          </div>
+        </div>
+        <div className="form__form-group">
+          <span className="form__form-group-label">Email</span>
+          <div className="form__form-group-field">
+            <input
+              name="email"
+              component="input"
+              type="email"
+              email={email}
+              placeholder="....."
             />
           </div>
         </div>
 
-        <Link
+        <button
           className="btn btn-primary mt-4 account__btn account__btn--small"
-          to="/log_in"
+          type="submit"
         >
           Update Your Details
-        </Link>
+        </button>
       </form>
     );
   }
 }
 
-export default reduxForm ({
-  form: 'profileUpdateForm',
-}) (LogInForm);
+export default ProfileForm;

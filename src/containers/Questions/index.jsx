@@ -5,13 +5,18 @@ import Stats from './components/Stats';
 import QuestionsList from './components/QuestionsList';
 import QuestionsDetails from './components/QuestionDetails';
 import PropTypes from 'prop-types';
-
+import QuestionsService from '../../services/Questions';
+import TopicsService from '../../services/Topics';
 //Redux
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
 import {getCurrentQuestion, getQuestions} from '../../redux/actions/questions';
+import {getTopics} from '../../redux/actions/topics';
 
-class Notes extends Component {
+const queService = new QuestionsService ();
+const topicService = new TopicsService ();
+
+class Questions extends Component {
   constructor (props) {
     super (props);
     this.state = {
@@ -23,8 +28,37 @@ class Notes extends Component {
     currentQuestion: PropTypes.object,
     topics: PropTypes.arrayOf (PropTypes.object).isRequired,
   };
-  getTopic = topic => {
-    const {questionsList, getQuestions} = this.props;
+  componentDidMount () {
+    this.fetchQuestions ();
+    this.fetchTopics ();
+  }
+  fetchQuestions = () => {
+    const {getQuestions} = this.props;
+    return queService
+      .fetchAll ()
+      .then (res => {
+        getQuestions (res.content);
+        return res.content;
+      })
+      .catch (err => {
+        console.log ('err', err);
+      });
+  };
+  fetchTopics = () => {
+    const {getTopics} = this.props;
+    topicService
+      .fetchAll ()
+      .then (res => {
+        getTopics (res.content);
+      })
+      .catch (err => {
+        console.log ('err', err);
+      });
+  };
+
+  getTopic = async topic => {
+    const {getQuestions} = this.props;
+    const questionsList = await this.fetchQuestions ();
     const newQuestionsList = questionsList.filter (
       question => question.topic.property === topic.property
     );
@@ -32,7 +66,8 @@ class Notes extends Component {
     this.setState ({currentTopic: topic});
   };
   resetNotes = () => {
-    //const {get} = objectToDestruct
+    this.fetchQuestions ();
+    this.setState ({currentTopic: null});
   };
 
   render () {
@@ -53,16 +88,16 @@ class Notes extends Component {
             <Card header="Topics">
               <ul className="list-group list-unstyled">
                 {topics &&
-                  topics.map ((topic, idx) => (
-                    <li key={idx} className="nav-link">
-                      <span
-                        onClick={() => this.getTopic (topic)}
-                        className="text-primary"
-                      >
-                        {' '}{topic.label}
-                      </span>
+                  topics.length > 0 &&
+                  topics.map (topic => (
+                    <li
+                      key={topic._id}
+                      onClick={() => this.getTopic (topic)}
+                      className="text-primary nav-link custom-nav-link"
+                    >
+                      {topic.label}
                       <span className="float-right text-dark">
-                        {topic.numberOfNotes}+
+                        {topic.questions.length}+
                       </span>
 
                     </li>
@@ -78,6 +113,12 @@ class Notes extends Component {
                   {currentTopic &&
                     <p className="mb-4">
                       showing questions of <em>"{currentTopic.label}"</em>
+                      <span
+                        className="btn-link ml-2 custom-nav-link "
+                        onClick={() => this.resetNotes ()}
+                      >
+                        reset
+                      </span>
                     </p>}
                   <QuestionsList />
                 </Card>}
@@ -92,7 +133,7 @@ const mapStateToProps = state => {
   return {
     questionsList: state.questions.questionsList,
     currentQuestion: state.questions.currentQuestion,
-    topics: state.notes.topics,
+    topics: state.topics.topics,
   };
 };
 
@@ -101,8 +142,9 @@ const mapDispatchToprops = dispatch =>
     {
       getCurrentQuestion,
       getQuestions,
+      getTopics,
     },
     dispatch
   );
 
-export default connect (mapStateToProps, mapDispatchToprops) (Notes);
+export default connect (mapStateToProps, mapDispatchToprops) (Questions);

@@ -12,6 +12,11 @@ code {
     monospace;
 }
 
-.question-font {
+/* .question-font {
   font-size: 1.5em !important;
+} */
+
+.select-control {
+  width: 100%;
+  border: 1px #f2f4f7 solid;
 }

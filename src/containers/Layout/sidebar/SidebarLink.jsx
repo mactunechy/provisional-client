@@ -19,7 +19,7 @@ const SidebarLink = ({title, icon, newLink, route, onClick}) => (
 
 SidebarLink.propTypes = {
   title: PropTypes.string.isRequired,
-  icon: PropTypes.string,
+  icon: PropTypes.object,
   newLink: PropTypes.bool,
   route: PropTypes.string,
   onClick: PropTypes.func,

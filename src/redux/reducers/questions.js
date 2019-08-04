@@ -93,7 +93,7 @@ const initialState = {
 export default (state = initialState, action) => {
   switch (action.type) {
     case GET_QUESTIONS:
-      return {...state, questions: action.payload};
+      return {...state, questionsList: action.payload};
     case GET_CURRENT_QUESTION:
       return {...state, currentQuestion: action.payload};
     default:

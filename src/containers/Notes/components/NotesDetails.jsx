@@ -2,17 +2,20 @@ import React from 'react';
 import {connect} from 'react-redux';
 import PropTypes from 'prop-types';
 import DiagramContainer from '../../../shared/components/DiagramContainer';
-import {Card, CardHeader, CardBody, Row, Col} from 'reactstrap';
+import {Card, CardFooter, CardHeader, CardBody, Row, Col} from 'reactstrap';
 import diagram from './diagram.png';
+import ArrowBackCircleIcon from 'mdi-react/ArrowBackIcon';
+import {bindActionCreators} from 'redux';
+import {getCurrentNotes} from '../../../redux/actions/notes';
 
 const style = {
   fontSize: '1.2em',
 };
 
 function NotesDetails (props) {
-  const {currentNotes} = props;
+  const {currentNotes, getCurrentNotes} = props;
   return (
-    <React.Fragment>
+    <div className="container">
       {currentNotes &&
         <Row>
           <Card>
@@ -20,40 +23,54 @@ function NotesDetails (props) {
               Notes <br />
               <small className="text-muted">{currentNotes.id}</small>
             </CardHeader>
+
             <CardBody>
+              <div
+                className=" custom-nav-link"
+                onClick={() => getCurrentNotes (null)}
+              >
+                <ArrowBackCircleIcon className="bg-default" />
+              </div>
               <DiagramContainer src={diagram} />
               <p style={style}>{currentNotes.description}</p>
             </CardBody>
           </Card>
         </Row>}
       {currentNotes &&
-        currentNotes.examples &&
-        currentNotes.examples.map ((eg, idx) => (
-          <Row>
-            <Card key={idx}>
-              <CardHeader className="h4">
-                Example
-                <small className="text-muted ml-2">{idx + 1}</small>
-              </CardHeader>
-              <CardBody>
-                {<DiagramContainer src={diagram} />}
-                <p style={style}>{eg.description}</p>
-                <br />
-                <Row>
-                  {eg.multipleChoice.map ((answer, idx) => (
-                    <Col key={idx} sm={4}>
-                      <h5>{answer.letter} : {answer.description}</h5>
-                    </Col>
-                  ))}
-                </Row>
-                <h4 className="float-right mt-4">
-                  Answer : {eg.answer.letter}
-                </h4>
-              </CardBody>
-            </Card>
-          </Row>
-        ))}
-    </React.Fragment>
+        currentNotes.example &&
+        <Row>
+          <Card key={currentNotes.example._id}>
+            <CardHeader className="h4">
+              Example
+            </CardHeader>
+            <CardBody>
+
+              {<DiagramContainer src={diagram} />}
+              <p style={style}>{currentNotes.example.description}</p>
+              <br />
+              <Row>
+                {currentNotes.example.multipleChoice.map ((answer, idx) => (
+                  <Col key={idx} sm={4}>
+                    <h5>{answer.letter} : {answer.description}</h5>
+                  </Col>
+                ))}
+              </Row>
+              <h4 className="float-right mt-4">
+                Answer : {currentNotes.example.correctAnswer.letter}
+              </h4> <br />
+
+            </CardBody>
+            <CardFooter className="bg-white">
+              <button
+                className="btn btn-success float-right"
+                onClick={() => getCurrentNotes (null)}
+              >
+                done
+              </button>
+            </CardFooter>
+          </Card>
+        </Row>}
+    </div>
   );
 }
 
@@ -83,4 +100,7 @@ const mapStateToProps = state => ({
   currentNotes: state.notes.currentNotes,
 });
 
-export default connect (mapStateToProps) (NotesDetails);
+const mapDispatchToProps = dispatch =>
+  bindActionCreators ({getCurrentNotes}, dispatch);
+
+export default connect (mapStateToProps, mapDispatchToProps) (NotesDetails);

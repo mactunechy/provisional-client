@@ -6,6 +6,8 @@ import auth from './auth';
 import notes from './notes';
 import questions from './questions';
 import exams from './exams';
+import users from './users';
+import topics from './topics';
 
 export const reducer = combineReducers ({
   form: reduxFormReducer, // mounted under "form",
@@ -15,4 +17,6 @@ export const reducer = combineReducers ({
   notes,
   questions,
   exams,
+  users,
+  topics
 });

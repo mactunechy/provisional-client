@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import {connect} from 'react-redux';
 import PropTypes from 'prop-types';
 import DiagramContainer from '../../../shared/components/DiagramContainer';
+import QuestionsService from '../../../services/Questions';
 import Answer from './Answer';
 import {
   Card,
@@ -17,6 +18,8 @@ import diagram from './diagram.png';
 //Redux
 import {getCurrentQuestion} from '../../../redux/actions/questions';
 import {bindActionCreators} from 'redux';
+
+const queService = new QuestionsService ();
 
 const style = {
   description: {
@@ -85,13 +88,26 @@ class QuestionDetails extends Component {
     }, 1000);
     this.watch = watch;
   };
+  deleteQuestion = () => {
+    const {currentQuestion, getCurrentQuestion} = this.props;
+    queService
+      .delete (currentQuestion._id)
+      .then (result => {
+        console.log ('result', result);
+        getCurrentQuestion (null);
+      })
+      .catch (err => {
+        console.log ('err', err);
+      });
+  };
   markQuestion = timedOut => {
     clearInterval (this.watch);
     const {selectedAnswer} = this.state;
     const {currentQuestion, getCurrentQuestion} = this.props;
     if (selectedAnswer === '' && !timedOut) return;
     let isCorrect = false;
-    if (!timedOut) isCorrect = selectedAnswer === currentQuestion.answer.letter;
+    if (!timedOut)
+      isCorrect = selectedAnswer === currentQuestion.correctAnswer.letter;
     const myAnswer = {
       isCorrect,
       message: timedOut
@@ -114,7 +130,7 @@ class QuestionDetails extends Component {
           <Row>
             <Answer
               myAnswer={myAnswer}
-              correctAnswer={currentQuestion.answer}
+              correctAnswer={currentQuestion.correctAnswer}
               show={showAnswer}
             />
             <Card className="border-secondary">
@@ -140,6 +156,12 @@ class QuestionDetails extends Component {
 
               </CardHeader>
               <CardBody>
+                <button
+                  className="btn btn-danger float-right"
+                  onClick={this.deleteQuestion}
+                >
+                  delete
+                </button>
                 <DiagramContainer src={diagram} />
                 <p style={style.description}>{currentQuestion.description}</p>
                 <Row className="mt-3">
@@ -177,11 +199,18 @@ class QuestionDetails extends Component {
                   {' '}
                   the  multiple choice letter
                 </small>
+
                 <Button
                   className="btn-primary text-white mt-0 mb-0 float-right"
                   onClick={() => this.markQuestion ()}
                 >
                   Submit
+                </Button>
+                <Button
+                  className="btn-secondary mr-2 mt-0 mb-0 float-right"
+                  onClick={() => this.props.getCurrentQuestion (null)}
+                >
+                  Cancel
                 </Button>
               </CardBody>
 

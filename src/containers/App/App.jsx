@@ -8,14 +8,14 @@ import 'bootstrap/dist/css/bootstrap.css';
 //import '../../assets/css/bootstrap.min.css';
 //import '../../assets/css/now-ui-kit.css';
 import '../../scss/app.scss';
+import '../../App.css';
 import Router from './Router';
 import store from './store';
 import ScrollToTop from './ScrollToTop';
 
 import jwtDecode from 'jwt-decode';
 import {USER_LOGIN} from '../../redux/actions/auth';
-
-if (localStorage.token !== 'undefined' && localStorage.token.length > 0) {
+if (typeof localStorage.token !== 'undefined') {
   const token = jwtDecode (localStorage.token);
   if (token) {
     store.dispatch ({

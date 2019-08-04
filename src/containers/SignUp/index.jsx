@@ -2,32 +2,42 @@ import React, {Component} from 'react';
 import {Link} from 'react-router-dom';
 import FacebookIcon from 'mdi-react/FacebookIcon';
 import GooglePlusIcon from 'mdi-react/GooglePlusIcon';
-import LogInForm from './components/LogInForm';
+import SignUpForm from './components/SignUpForm';
+import {connect} from 'react-redux';
 import Auth from '../../services/auth';
 import {bindActionCreators} from 'redux';
 import {userLogin} from '../../redux/actions/auth';
-import {connect} from 'react-redux';
+
 import UsersService from '../../services/Users';
+
 const userService = new UsersService ();
 
-class LogIn extends Component {
+class SignUp extends Component {
   constructor (props) {
     super (props);
     this.state = {
       loading: false,
     };
   }
-  handleSubmit = credentials => {
+  handleSubmit = values => {
     const {userLogin, history} = this.props;
     this.setState ({loading: true});
     userService
-      .login ({email: credentials.email, password: credentials.password})
-      .then (res => {
-        Auth.removeToken ();
-        Auth.setToken (res.content.token);
-        const tokenData = Auth.decodeToken ();
-        userLogin (tokenData);
-        history.push ('/dashboard');
+      .create (values)
+      .then (() => {
+        userService
+          .login ({email: values.email, password: values.password})
+          .then (res => {
+            Auth.removeToken ();
+            Auth.setToken (res.content.token);
+            const tokenData = Auth.decodeToken ();
+            userLogin (tokenData);
+            history.push ('/dashboard');
+          })
+          .catch (err => {
+            console.log ('err', err);
+            this.setState ({loading: false});
+          });
       })
       .catch (err => {
         console.log ('err', err);
@@ -52,7 +62,7 @@ class LogIn extends Component {
                 Start your business easily
               </h4>
             </div>
-            <LogInForm onSubmit={this.handleSubmit} loading={loading} />
+            <SignUpForm loading={loading} onSubmit={this.handleSubmit} />
             <div className="account__or">
               <p>Or Easily Using</p>
             </div>
@@ -85,7 +95,7 @@ const mapDispatchToProps = dispatch =>
     dispatch
   );
 
-export default connect (null, mapDispatchToProps) (LogIn);
+export default connect (null, mapDispatchToProps) (SignUp);
 
 // if you want to add select, date-picker and time-picker in your app you need to uncomment the first
 // four lines in /scss/components/form.scss to add styles
