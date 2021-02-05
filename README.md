@@ -28,5 +28,9 @@ A platform for learning driving road rules, contains questions, notes and auto g
  7. paynow SDK
  8. React.js Redux
  
+ ## How it looks
  
+ ![shot1](https://raw.githubusercontent.com/mactunechy/provisional-client/master/Screenshot%20from%202021-02-05%2016-40-21.png)
+ ![shot2](https://raw.githubusercontent.com/mactunechy/provisional-client/master/Screenshot%20from%202021-02-05%2016-40-49.png)
+ ![shot3](https://raw.githubusercontent.com/mactunechy/provisional-client/master/Screenshot%20from%202021-02-05%2016-42-39.png)
  
